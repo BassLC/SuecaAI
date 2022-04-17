@@ -13,7 +13,6 @@ library
       Card
       FirstCardStrategy
       Game
-      Lib
       Player
       RandomStrategy
       Rng

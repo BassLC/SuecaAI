@@ -18,23 +18,22 @@ next rng = (result, Rng newState)
         addend = 3037000493
         newState = rngState rng * mul + addend
 
-generateRandomNumberList:: Rng -> Int -> [Int]
-generateRandomNumberList rng size
+generateRandomNumberListWithRng size rng
   | size == 0 = []
-  | otherwise = res : generateRandomNumberList newRng (size - 1)
-  where (res, newRng) = next rng
-  
-
--- Shuffle uses the RNG to generate a random list of numbers, then assigns each member
--- of the given list to one of these numbers. It sorts the list (only by the random
--- number given, so the general type does not have to implement Ord). Finally, it removes
--- the random numbers given and returns only the starting list, with a now random order
-shuffle :: Rng -> [a] -> [a]
-shuffle rng lst = map snd $ sortBy (\(a, _) (b, _) -> compare a b) $ zip (generateRandomNumberList rng size) lst
-  where size = length lst
-        rndNumberList = generateRandomNumberList rng size
-
--- Yeah yeah it is not fully random, go suck a lemon
-chooseRandomly rng lst = (lst !! index, nextRng)
+  | otherwise = (n, nextRng) : generateRandomNumberListWithRng (size - 1) nextRng
   where (n, nextRng) = next rng
-        index = mod n (length lst)
+-- Shuffle uses the RNG to generate a random index, and recursively
+-- constructs a new list with elements from the previous one
+shuffle :: Rng -> [a] -> ([a], Rng)
+shuffle rng lst
+  | null lst = ([], rng)
+  | otherwise = (shuffledList, lastRng)
+    where (rnd, nextRng) = next rng
+          randomValuesAndRng = generateRandomNumberListWithRng (length lst) rng
+          randomValues = map fst randomValuesAndRng
+          shuffledList = map snd $ sortBy (\(a, _) (b, _) -> compare a b) $ zip randomValues lst
+          lastRng = snd $ last randomValuesAndRng
+       
+
+chooseRandomly rng lst = (head shuffledLst, nextRng)
+  where (shuffledLst, nextRng) = shuffle rng lst
