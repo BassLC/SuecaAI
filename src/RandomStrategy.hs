@@ -1,30 +1,30 @@
 module RandomStrategy where
 
-import Player
 import Rng
-import Debug.Trace (traceShow)
-
+import Types
+import Game
+import Player
+import Data.Maybe
+import Data.List
+  
 newtype RandomStrategy = RandomStrategy {rng :: Rng} 
 
-instance Show RandomStrategy where
-  show _ = "RandomStrategy"
+setupRandom player _ = player {playerSetup = undefined,
+                               playerGiveCard = giveRandomCard startingRandom,
+                               playerUpdateAfterRound = updateRandomAfterRound startingRandom }
+                       where startingRandom = RandomStrategy (Rng 101010101010)
 
-instance Strategy RandomStrategy where
-  empty = RandomStrategy {rng = Rng 1337}
+giveRandomCard randomStrategy player round = cardChosen
+  where (cardChosen, nextRng) = chooseRandomly (rng randomStrategy) allowedHand
+        allowedHand = filterHandForAllowedCards round (playerHand player)
 
-  setup randomStrategy hand team _ id = Player (RandomStrategy newRng) hand team id
-    where newRng = snd $ next $ rng randomStrategy
-
-  giveCard randomStrategy player round = (card, newPlayer)
-    where (card, nextRng) = chooseRandomly (rng randomStrategy) (allowedHand round (playerHand player))
-          newHand = filter (/= card) (playerHand player)
-          -- GADT is dumb so we can't just assign playerStrategy and playerHand
-          -- we must assign them all
-          newPlayer = Player {
-            playerHand = newHand,
-            playerTeam = playerTeam player,
-            playerId = playerId player,
-            playerStrategy = RandomStrategy nextRng}
-
-  updateWorldAfterRound _ player _ = player
+updateRandomAfterRound randomStrategy player round = player {playerHand = newHand, playerGiveCard = giveRandomCard nextStrategy}
+  where cardChosen = cardPlayed $ fromJust $ find ((== player) . playerOfPlay) round
+        newHand = filter (/= cardChosen) (playerHand player)
+        (_, nextRng) = next (rng randomStrategy)
+        nextStrategy = RandomStrategy nextRng
   
+  
+createRandomPlayer :: PlayerConstructor 
+createRandomPlayer id hand team = Player id hand team setupRandom undefined undefined
+                                        

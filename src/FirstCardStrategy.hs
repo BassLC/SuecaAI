@@ -1,16 +1,24 @@
 module FirstCardStrategy where
 
+import Types 
 import Player
+import Data.Maybe
+import Data.List
 
-data FirstCard = FirstCard deriving (Show)
+import Game
 
-instance Strategy FirstCard where
-  empty = FirstCard
-  setup strat hand team _ id = Player strat hand team id
-  giveCard _ player _ = (card, newPlayer)
-    where card = head (playerHand player)
-          newHand = tail (playerHand player)
-          newPlayer = player {playerHand = newHand}
+setupFirstCard player _ = player { playerSetup = undefined,
+                                   playerGiveCard = giveFirstCard,
+                                   playerUpdateAfterRound = updateFirstCard}
 
-  updateWorldAfterRound _ player _ = player
+giveFirstCard player round = head allowedHand
+  where allowedHand = filterHandForAllowedCards round (playerHand player)
+        choosenCard = head allowedHand
 
+updateFirstCard player round = player {playerHand = updatedHand}
+  where myCard = cardPlayed $ fromJust $ find ((== player) . playerOfPlay) round
+        updatedHand = filter (/= myCard) (playerHand player)
+
+createFirstCardPlayer :: PlayerConstructor
+createFirstCardPlayer id hand team = Player id hand team setupFirstCard undefined undefined
+                                           

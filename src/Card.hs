@@ -42,4 +42,12 @@ valueOfCard card = case cardValue card of
                  Ace -> 11
                  _ -> 0
 
+generateDeck = [Card v s | v <- [minBound ..], s <- [minBound ..]]
+
 type Hand = [Card]
+
+generateHands deck nHands
+  | nHands == 0 = []
+  | nHands == 1 = [take 10 deck]
+  | otherwise = take 10 deck : generateHands (drop 10 deck) (nHands - 1)
+

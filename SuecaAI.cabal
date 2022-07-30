@@ -1,6 +1,6 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.34.6.
+-- This file has been generated from package.yaml by hpack version 0.35.0.
 --
 -- see: https://github.com/sol/hpack
 
@@ -16,6 +16,7 @@ library
       Player
       RandomStrategy
       Rng
+      Types
   other-modules:
       Paths_SuecaAI
   hs-source-dirs:
@@ -23,7 +24,6 @@ library
   build-depends:
       base >=4.7 && <5
     , containers
-    , random
   default-language: Haskell2010
 
 executable SuecaAI-exe
@@ -37,7 +37,6 @@ executable SuecaAI-exe
       SuecaAI
     , base >=4.7 && <5
     , containers
-    , random
   default-language: Haskell2010
 
 test-suite SuecaAI-test
@@ -52,5 +51,4 @@ test-suite SuecaAI-test
       SuecaAI
     , base >=4.7 && <5
     , containers
-    , random
   default-language: Haskell2010
