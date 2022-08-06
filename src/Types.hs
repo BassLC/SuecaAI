@@ -6,6 +6,9 @@ import           Data.Maybe
 data Team = Red | Blue
   deriving (Read, Show, Eq, Ord, Bounded, Enum)
 
+enemyTeam Red  = Blue
+enemyTeam Blue = Red
+
 data Suit = Heart | Club | Diamond | Spade
           deriving (Read, Enum, Eq, Bounded, Ord)
 
@@ -75,11 +78,11 @@ data Player = Player {
   -- `playerGiveCard` is called during a Round. It gives the current
   -- Player's state, the current Round's state, and expects a
   -- Card
-  playerGiveCard         :: Player -> Round -> Card,
+  playerGiveCard         :: GameState -> Player -> Round -> Card,
 
   -- `playerUpdateAfterRound` allows the Player to check how the
   -- full Round went, and to update itself accordingly.
-  playerUpdateAfterRound :: Player -> Round -> Player
+  playerUpdateAfterRound :: GameState -> Player -> Round -> Player
 }
 
 instance Ord Player where
@@ -97,7 +100,7 @@ friend player1 player2 = playerTeam player1 == playerTeam player2
 data Play = Play {
   cardPlayed   :: Card,
   playerOfPlay :: Player
-} deriving (Eq, Ord)
+} deriving (Eq)
 
 instance Show Play where
   show play = "P" ++ id ++ "|" ++ team ++ " -> " ++ show (cardPlayed play)
@@ -127,6 +130,11 @@ sortPlay trump firstSuit play1 play2
 -- Winning play is the maximum of all Plays in a Round
 winningPlay trump round = maximumBy (sortPlay trump (fromJust $ firstSuitOfRound round)) round
 
+winningPlayer gameState round = playerOfPlay $
+  winningPlay (cardSuit $ gameTrumpCard gameState) round
+
+-- `Round` is in order of plays:
+-- `head round` is the first play made in the round
 type Round = [Play]
 
 firstSuitOfRound round
@@ -150,8 +158,10 @@ data GameState = GameState {
   gamePlayers   :: [Player],
   gameTrumpCard :: Card,
   gameDealer    :: Player,
+  -- `roundsPlayed` is in INVERSE order: the `head roundsPlayed` is the
+  -- last round played.
   roundsPlayed  :: [Round]
-} deriving (Eq, Ord)
+} deriving (Show)
 
 -- Each Strategy should implement a Constructor with this type
 type PlayerConstructor = Id -> Hand -> Team -> Player

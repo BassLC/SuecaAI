@@ -10,11 +10,11 @@ setupFirstCard player _ = player { playerSetup = undefined,
                                    playerGiveCard = giveFirstCard,
                                    playerUpdateAfterRound = updateFirstCard}
 
-giveFirstCard player round = head allowedHand
+giveFirstCard _ player round = head allowedHand
   where allowedHand = filterHandForAllowedCards round (playerHand player)
         choosenCard = head allowedHand
 
-updateFirstCard player round = player {playerHand = updatedHand}
+updateFirstCard _ player round = player {playerHand = updatedHand}
   where myCard = cardPlayed $ fromJust $ find ((== player) . playerOfPlay) round
         updatedHand = filter (/= myCard) (playerHand player)
 

@@ -25,11 +25,11 @@ rotateLeft n ls = take (length ls) $ drop n (cycle ls)
 playRound gameState = gameState {gamePlayers = updatedPlayers,
                                  roundsPlayed = round : roundsPlayed gameState}
   where players = gamePlayers gameState
-        round = foldl' (\round player -> let card = playerGiveCard player player round
+        round = foldl' (\round player -> let card = playerGiveCard player gameState player round
                                         in round ++ [Play card player]) [] players
-        winningPlayer = playerOfPlay $ winningPlay (cardSuit $ gameTrumpCard gameState) round
-        indexPlayer = fromJust $ elemIndex winningPlayer players
-        updatedPlayers = rotateLeft indexPlayer $ map (\p -> playerUpdateAfterRound p p round) players
+        indexPlayer = fromJust $ elemIndex (winningPlayer gameState round) players
+        updatedPlayers = rotateLeft indexPlayer $
+          map (\p -> playerUpdateAfterRound p gameState p round) players
 
 
 createNewGame :: [PlayerConstructor] -> GameState
