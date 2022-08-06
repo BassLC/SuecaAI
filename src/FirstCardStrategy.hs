@@ -1,11 +1,10 @@
 module FirstCardStrategy where
 
-import Types 
-import Player
-import Data.Maybe
-import Data.List
+import           Data.List
+import           Data.Maybe
+import           Types
 
-import Game
+import           Game
 
 setupFirstCard player _ = player { playerSetup = undefined,
                                    playerGiveCard = giveFirstCard,
@@ -21,4 +20,4 @@ updateFirstCard player round = player {playerHand = updatedHand}
 
 createFirstCardPlayer :: PlayerConstructor
 createFirstCardPlayer id hand team = Player id hand team setupFirstCard undefined undefined
-                                           
+

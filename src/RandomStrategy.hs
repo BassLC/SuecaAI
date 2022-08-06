@@ -1,13 +1,12 @@
 module RandomStrategy where
 
-import Rng
-import Types
-import Game
-import Player
-import Data.Maybe
-import Data.List
-  
-newtype RandomStrategy = RandomStrategy {rng :: Rng} 
+import           Data.List
+import           Data.Maybe
+import           Game
+import           Rng
+import           Types
+
+newtype RandomStrategy = RandomStrategy {rng :: Rng}
 
 setupRandom player _ = player {playerSetup = undefined,
                                playerGiveCard = giveRandomCard startingRandom,
@@ -23,8 +22,8 @@ updateRandomAfterRound randomStrategy player round = player {playerHand = newHan
         newHand = filter (/= cardChosen) (playerHand player)
         (_, nextRng) = next (rng randomStrategy)
         nextStrategy = RandomStrategy nextRng
-  
-  
-createRandomPlayer :: PlayerConstructor 
+
+
+createRandomPlayer :: PlayerConstructor
 createRandomPlayer id hand team = Player id hand team setupRandom undefined undefined
-                                        
+
